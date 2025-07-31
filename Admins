@@ -1,0 +1,55 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Lista de UserIds de admins
+local Admins = {
+    [2609502708] = true,  -- Tu UserId aquí
+}
+
+if not Admins[player.UserId] then return end
+
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Función para hacer invisible al personaje
+local function MakeInvisible()
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then
+            part.Transparency = 1
+            if part.Name == "Head" then
+                local face = part:FindFirstChild("face")
+                if face then face.Transparency = 1 end
+            end
+        elseif part:IsA("Decal") then
+            part.Transparency = 1
+        elseif part:IsA("Accessory") then
+            local handle = part:FindFirstChild("Handle")
+            if handle then
+                handle.Transparency = 1
+            end
+        end
+    end
+end
+
+local RunService = game:GetService("RunService")
+local noclipEnabled = true
+
+RunService.Stepped:Connect(function()
+    if noclipEnabled and humanoidRootPart then
+        for _, part in pairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+MakeInvisible()
+
+player.CharacterAdded:Connect(function(char)
+    character = char
+    humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid = character:WaitForChild("Humanoid")
+    MakeInvisible()
+end)
